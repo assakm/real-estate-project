@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Assign Screen</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #0f1123;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+    }
+
+    .top-bar {
+      background-color: #1a1b1f;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .left-section {
+      display: flex;
+      align-items: center;
+    }
+
+    .back-arrow {
+      font-size: 22px;
+      margin-right: 10px;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .back-arrow:hover {
+      color: orange;
+    }
+
+    .title {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .add-button {
+      font-size: 24px;
+      color: white;
+      background-color: orange;
+      border: none;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s;
+    }
+
+    .add-button:hover {
+      background-color: #ff8c00;
+    }
+
+    .center-label {
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
+    .center-label span {
+      background-color: #2d2b3c;
+      color: #cfc6ff;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .container {
+      padding: 0 20px 20px;
+    }
+
+    .search-filter-section {
+      margin-bottom: 20px;
+    }
+
+    .search-bar {
+      width: 100%;
+      background-color: #1e1f2a;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 14px;
+      margin-bottom: 15px;
+      color: white;
+      box-sizing: border-box;
+    }
+
+    .search-bar::placeholder {
+      color: #aaa;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .filter-buttons button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .filter-buttons .active {
+      background-color: orange;
+      color: white;
+    }
+
+    .filter-buttons .inactive {
+      background-color: #2d2b3c;
+      color: #cfc6ff;
+    }
+
+    .filter-buttons .inactive:hover {
+      background-color: #3d3b4c;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    .customer-card {
+      background-color: #2b2736;
+      border-radius: 12px;
+      padding: 16px 24px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: slideIn 0.3s ease-out;
+      position: relative;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .customer-info {
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+
+    .customer-info .name {
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .customer-info .id {
+      font-size: 13px;
+      color: #bbb;
+    }
+
+    .customer-info .assigned-to {
+      font-size: 12px;
+      color: #cfc6ff;
+      margin-top: 4px;
+    }
+
+    .assignment-status {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    .assigned {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .unassigned {
+      background-color: #ff4444;
+      color: white;
+    }
+
+    .icons {
+      display: flex;
+      align-items: center;
+    }
+
+    .icons span {
+      font-size: 18px;
+      margin-left: 16px;
+      cursor: pointer;
+      color: #cfc6ff;
+      transition: color 0.3s;
+    }
+
+    .icons span:hover {
+      color: orange;
+    }
+
+    .checkbox-icon.selected {
+      color: orange;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background-color: #2b2736;
+      margin: 10% auto;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal h2 {
+      color: orange;
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: white;
+      font-weight: bold;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px;
+      background-color: #1e1f2a;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .form-group input::placeholder {
+      color: #aaa;
+    }
+
+    .form-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 25px;
+    }
+
+    .form-buttons button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .btn-primary {
+      background-color: orange;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #ff8c00;
+    }
+
+    .btn-secondary {
+      background-color: #666;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #777;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: orange;
+    }
+
+    .no-customers {
+      text-align: center;
+      color: #aaa;
+      font-style: italic;
+      margin-top: 40px;
+    }
+
+    .bulk-actions {
+      background-color: #2d2b3c;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .bulk-actions.show {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .bulk-actions button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    .btn-bulk-assign {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .btn-bulk-delete {
+      background-color: #f44336;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="left-section">
+      <div class="back-arrow" onclick="goBack()">←</div>
+      <div class="title">Assign Screen</div>
+    </div>
+    <button class="add-button" onclick="openAddModal()">＋</button>
+  </div>
+
+  <div class="center-label">
+    <span>Customer Assignments</span>
+  </div>
+
+  <div class="container">
+    <div class="search-filter-section">
+      <input class="search-bar" type="text" placeholder="🔍 Search customers..." onkeyup="searchCustomers()" />
+      
+      <div class="filter-buttons">
+        <button class="active" onclick="filterCustomers('all')">All</button>
+        <button class="inactive" onclick="filterCustomers('assigned')">Assigned</button>
+        <button class="inactive" onclick="filterCustomers('unassigned')">Unassigned</button>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <span id="customerCount">Loading...</span>
+      <span id="selectedCount">0 selected</span>
+    </div>
+
+    <div class="bulk-actions" id="bulkActions">
+      <span id="bulkText">0 customers selected</span>
+      <div>
+        <button class="btn-bulk-assign" onclick="bulkAssign()">Bulk Assign</button>
+        <button class="btn-bulk-delete" onclick="bulkDelete()">Delete Selected</button>
+        <button class="btn-secondary" onclick="clearSelection()">Clear Selection</button>
+      </div>
+    </div>
+
+    <div id="customersList">
+      <!-- Customer cards will be dynamically generated here -->
+    </div>
+
+    <div class="no-customers" id="noCustomers" style="display: none;">
+      No customers found matching your criteria.
+    </div>
+  </div>
+
+  <!-- Add Customer Modal -->
+  <div id="addModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeAddModal()">&times;</span>
+      <h2>Add New Customer</h2>
+      <form id="addCustomerForm">
+        <div class="form-group">
+          <label for="customerName">Customer Name:</label>
+          <input type="text" id="customerName" name="name" placeholder="Enter customer name" required>
+        </div>
+        <div class="form-group">
+          <label for="assignedEmployee">Assign to Employee:</label>
+          <select id="assignedEmployee" name="employee">
+            <option value="">Select Employee (Optional)</option>
+            <option value="sudheer">Sudheer (Inside Sales)</option>
+            <option value="er">Er (Inside Sales)</option>
+            <option value="rayudu">Rayudu (Inside Sales)</option>
+            <option value="usha">Usha (Outside Sales)</option>
+            <option value="manch">Manch (Outside Sales)</option>
+          </select>
+        </div>
+        <div class="form-buttons">
+          <button type="submit" class="btn-primary">Add Customer</button>
+          <button type="button" class="btn-secondary" onclick="closeAddModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bulk Assign Modal -->
+  <div id="bulkAssignModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeBulkAssignModal()">&times;</span>
+      <h2>Bulk Assign Customers</h2>
+      <form id="bulkAssignForm">
+        <div class="form-group">
+          <label for="bulkAssignEmployee">Assign to Employee:</label>
+          <select id="bulkAssignEmployee" name="employee" required>
+            <option value="">Select Employee</option>
+            <option value="sudheer">Sudheer (Inside Sales)</option>
+            <option value="er">Er (Inside Sales)</option>
+            <option value="rayudu">Rayudu (Inside Sales)</option>
+            <option value="usha">Usha (Outside Sales)</option>
+            <option value="manch">Manch (Outside Sales)</option>
+          </select>
+        </div>
+        <div class="form-buttons">
+          <button type="submit" class="btn-primary">Assign Selected</button>
+          <button type="button" class="btn-secondary" onclick="closeBulkAssignModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Sample customer data with assignments
+    let customers = [
+      { id: 1, name: 'ajith', customerId: '0pMayIgdTu0flV717826', assignedTo: 'sudheer', selected: false },
+      { id: 2, name: 'aaaaaa', customerId: '3yumpJZ05uW7zTo3izqn', assignedTo: '', selected: false },
+      { id: 3, name: 'stalin', customerId: '49z9yiUr10REUKPc5njj', assignedTo: 'usha', selected: false },
+      { id: 4, name: 'bala', customerId: '6JCJ6jpi5cTi6W57y9M', assignedTo: '', selected: false },
+      { id: 5, name: 'jhnbhj', customerId: '6XbPeD8lzCOzWeM8hojZ', assignedTo: 'rayudu', selected: false },
+      { id: 6, name: 'manoj', customerId: '6wpB0RDNNBAm74Ay1XKy', assignedTo: 'manch', selected: false }
+    ];
+
+    let currentFilter = 'all';
+    let nextId = 7;
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      displayCustomers();
+      updateStats();
+    });
+
+    // Generate random customer ID
+    function generateCustomerId() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
+      for (let i = 0; i < 20; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    // Display customers based on current filter
+    function displayCustomers() {
+      const customersList = document.getElementById('customersList');
+      const searchTerm = document.querySelector('.search-bar').value.toLowerCase();
+      
+      let filteredCustomers = customers.filter(customer => {
+        const matchesSearch = customer.name.toLowerCase().includes(searchTerm) || 
+                             customer.customerId.toLowerCase().includes(searchTerm) ||
+                             (customer.assignedTo && customer.assignedTo.toLowerCase().includes(searchTerm));
+        
+        const matchesFilter = currentFilter === 'all' || 
+                             (currentFilter === 'assigned' && customer.assignedTo) ||
+                             (currentFilter === 'unassigned' && !customer.assignedTo);
+        
+        return matchesSearch && matchesFilter;
+      });
+
+      customersList.innerHTML = '';
+      
+      if (filteredCustomers.length === 0) {
+        document.getElementById('noCustomers').style.display = 'block';
+      } else {
+        document.getElementById('noCustomers').style.display = 'none';
+        filteredCustomers.forEach(customer => {
+          const customerCard = createCustomerCard(customer);
+          customersList.appendChild(customerCard);
+        });
+      }
+      
+      updateStats();
+      updateBulkActions();
+    }
+
+    // Create customer card element
+    function createCustomerCard(customer) {
+      const card = document.createElement('div');
+      card.className = 'customer-card';
+      card.innerHTML = `
+        <div class="customer-info">
+          <div class="name">Customer Name: ${customer.name}</div>
+          <div class="id">Customer ID: ${customer.customerId}</div>
+          ${customer.assignedTo ? 
+            `<div class="assigned-to">Assigned to: ${customer.assignedTo}</div>` : 
+            '<div class="assigned-to">Unassigned</div>'}
+        </div>
+        <div class="assignment-status ${customer.assignedTo ? 'assigned' : 'unassigned'}">
+          ${customer.assignedTo ? 'ASSIGNED' : 'UNASSIGNED'}
+        </div>
+        <div class="icons">
+          <span class="checkbox-icon ${customer.selected ? 'selected' : ''}" 
+                onclick="toggleSelection(${customer.id})" 
+                title="Select/Deselect">
+            ${customer.selected ? '☑' : '☐'}
+          </span>
+          <span onclick="deleteCustomer(${customer.id})" title="Delete Customer">🗑</span>
+        </div>
+      `;
+      return card;
+    }
+
+    // Filter customers
+    function filterCustomers(filter) {
+      currentFilter = filter;
+      
+      // Update button styles
+      document.querySelectorAll('.filter-buttons button').forEach(btn => {
+        btn.className = 'inactive';
+      });
+      
+      const buttons = document.querySelectorAll('.filter-buttons button');
+      if (filter === 'all') {
+        buttons[0].className = 'active';
+      } else if (filter === 'assigned') {
+        buttons[1].className = 'active';
+      } else if (filter === 'unassigned') {
+        buttons[2].className = 'active';
+      }
+      
+      displayCustomers();
+    }
+
+    // Search customers
+    function searchCustomers() {
+      displayCustomers();
+    }
+
+    // Toggle customer selection
+    function toggleSelection(id) {
+      const customer = customers.find(c => c.id === id);
+      if (customer) {
+        customer.selected = !customer.selected;
+        displayCustomers();
+      }
+    }
+
+    // Clear all selections
+    function clearSelection() {
+      customers.forEach(c => c.selected = false);
+      displayCustomers();
+    }
+
+    // Update bulk actions visibility
+    function updateBulkActions() {
+      const selectedCount = customers.filter(c => c.selected).length;
+      const bulkActions = document.getElementById('bulkActions');
+      const bulkText = document.getElementById('bulkText');
+      
+      if (selectedCount > 0) {
+        bulkActions.classList.add('show');
+        bulkText.textContent = `${selectedCount} customer${selectedCount > 1 ? 's' : ''} selected`;
+      } else {
+        bulkActions.classList.remove('show');
+      }
+      
+      document.getElementById('selectedCount').textContent = `${selectedCount} selected`;
+    }
+
+    // Open add customer modal
+    function openAddModal() {
+      document.getElementById('addModal').style.display = 'block';
+      document.getElementById('customerName').focus();
+    }
+
+    // Close add customer modal
+    function closeAddModal() {
+      document.getElementById('addModal').style.display = 'none';
+      document.getElementById('addCustomerForm').reset();
+    }
+
+    // Add new customer
+    document.getElementById('addCustomerForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('customerName').value.trim();
+      const employee = document.getElementById('assignedEmployee').value;
+      
+      if (name) {
+        const newCustomer = {
+          id: nextId++,
+          name: name,
+          customerId: generateCustomerId(),
+          assignedTo: employee,
+          selected: false
+        };
+        
+        customers.push(newCustomer);
+        displayCustomers();
+        closeAddModal();
+        
+        showMessage('Customer added successfully!', 'success');
+      }
+    });
+
+    // Delete customer
+    function deleteCustomer(id) {
+      const customer = customers.find(c => c.id === id);
+      if (customer && confirm(`Are you sure you want to delete customer "${customer.name}"?`)) {
+        customers = customers.filter(c => c.id !== id);
+        displayCustomers();
+        showMessage('Customer deleted successfully!', 'success');
+      }
+    }
+
+    // Bulk delete
+    function bulkDelete() {
+      const selectedCustomers = customers.filter(c => c.selected);
+      if (selectedCustomers.length > 0 && 
+          confirm(`Are you sure you want to delete ${selectedCustomers.length} selected customer(s)?`)) {
+        customers = customers.filter(c => !c.selected);
+        displayCustomers();
+        showMessage(`${selectedCustomers.length} customer(s) deleted successfully!`, 'success');
+      }
+    }
+
+    // Bulk assign
+    function bulkAssign() {
+      const selectedCount = customers.filter(c => c.selected).length;
+      if (selectedCount > 0) {
+        document.getElementById('bulkAssignModal').style.display = 'block';
+      }
+    }
+
+    // Close bulk assign modal
+    function closeBulkAssignModal() {
+      document.getElementById('bulkAssignModal').style.display = 'none';
+      document.getElementById('bulkAssignForm').reset();
+    }
+
+    // Handle bulk assign form
+    document.getElementById('bulkAssignForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const employee = document.getElementById('bulkAssignEmployee').value;
+      const selectedCustomers = customers.filter(c => c.selected);
+      
+      if (employee && selectedCustomers.length > 0) {
+        selectedCustomers.forEach(customer => {
+          customer.assignedTo = employee;
+          customer.selected = false;
+        });
+        
+        displayCustomers();
+        closeBulkAssignModal();
+        showMessage(`${selectedCustomers.length} customer(s) assigned to ${employee} successfully!`, 'success');
+      }
+    });
+
+    // Update statistics
+    function updateStats() {
+      const searchTerm = document.querySelector('.search-bar').value.toLowerCase();
+      let filteredCount = customers.filter(customer => {
+        const matchesSearch = customer.name.toLowerCase().includes(searchTerm) || 
+                             customer.customerId.toLowerCase().includes(searchTerm) ||
+                             (customer.assignedTo && customer.assignedTo.toLowerCase().includes(searchTerm));
+        const matchesFilter = currentFilter === 'all' || 
+                             (currentFilter === 'assigned' && customer.assignedTo) ||
+                             (currentFilter === 'unassigned' && !customer.assignedTo);
+        
+        return matchesSearch && matchesFilter;
+      }).length;
+
+      const totalCount = customers.length;
+      const assignedCount = customers.filter(c => c.assignedTo).length;
+      
+      const filterText = currentFilter === 'all' ? 'customers' : 
+                        currentFilter === 'assigned' ? 'assigned customers' : 'unassigned customers';
+      
+      document.getElementById('customerCount').textContent = 
+        `Showing ${filteredCount} of ${totalCount} ${filterText} (${assignedCount} assigned total)`;
+    }
+
+    // Go back function
+    function goBack() {
+      if (confirm('Are you sure you want to go back? Any unsaved changes will be lost.')) {
+        // In a real app, this would navigate to the previous page
+        showMessage('Going back to previous page...', 'success');
+      }
+    }
+
+    // Show temporary message
+    function showMessage(message, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.textContent = message;
+      messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 24px;
+        background-color: ${type === 'success' ? '#4CAF50' : '#f44336'};
+        color: white;
+        border-radius: 8px;
+        z-index: 2000;
+        animation: slideInRight 0.3s ease-out;
+      `;
+      
+      document.body.appendChild(messageDiv);
+      
+      setTimeout(() => {
+        messageDiv.style.animation = 'slideOutRight 0.3s ease-out forwards';
+        setTimeout(() => messageDiv.remove(), 300);
+      }, 3000);
+    }
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+      const addModal = document.getElementById('addModal');
+      const bulkModal = document.getElementById('bulkAssignModal');
+      
+      if (event.target === addModal) {
+        closeAddModal();
+      }
+      if (event.target === bulkModal) {
+        closeBulkAssignModal();
+      }
+    }
+
+    // Handle escape key to close modals
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeAddModal();
+        closeBulkAssignModal();
+      }
+    });
+
+    // Add CSS for message animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      
+      @keyframes slideOutRight {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+
+</body>
+</html>
